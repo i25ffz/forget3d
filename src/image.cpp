@@ -196,9 +196,9 @@ namespace F3D {
         }
 
         // Check for known extensions
-        if ( stricmp(strstr(filename, "."), ".bmp") == 0 ) {
+        if ( stricmp(strrchr(filename, '.'), ".bmp") == 0 ) {
             buffer = loadBMP(fd, texture);
-        } else if ( stricmp(strstr(filename, "."), ".tga") == 0 ) {
+        } else if ( stricmp(strrchr(filename, '.'), ".tga") == 0 ) {
             buffer = loadTGA(fd, texture);
         } else {
             printf("Unsupport image file format!\n");

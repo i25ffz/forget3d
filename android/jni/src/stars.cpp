@@ -172,8 +172,8 @@ void JNICALL Java_com_forget3d_demo_F3DStarsRenderer_f3dStarsInit(JNIEnv* env, j
     world = World::getInstance();
     world->init();
 
-    texture = Image::loadTexture("/sdcard/star.bmp");
-	__android_log_print(ANDROID_LOG_INFO, "Forget3D", "load texture: %s ...", "/sdcard/star.bmp");
+    texture = Image::loadTexture("/data/data/com.forget3d.demo/files/star.bmp");
+	__android_log_print(ANDROID_LOG_INFO, "Forget3D", "load texture: %s ...", "/data/data/com.forget3d.demo/files/star.bmp");
 
 	camera = world->getActiveCamera();
     camera->setEye(0.0f, 0.0f, 15.0f);
@@ -194,8 +194,8 @@ void JNICALL Java_com_forget3d_demo_F3DStarsRenderer_f3dStarsInit(JNIEnv* env, j
     }
 
 	DELETEANDNULL(font, false);
-    font = new Font(16, 16, 24, 36, "/sdcard/font.bmp"); // /sdcard/game/forget3d/font.bmp, /dev/sample/font.bmp
-	__android_log_print(ANDROID_LOG_INFO, "Forget3D", "create Font: %s ...", "/sdcard/font.bmp");
+    font = new Font(16, 16, 24, 36, "/data/data/com.forget3d.demo/files/font.bmp"); // /data/data/com.forget3d.demo/files/game/forget3d/font.bmp, /dev/sample/font.bmp
+	__android_log_print(ANDROID_LOG_INFO, "Forget3D", "create Font: %s ...", "/data/data/com.forget3d.demo/files/font.bmp");
 
 	is_initialized = true;
 	is_done = 1;
@@ -230,7 +230,6 @@ void JNICALL Java_com_forget3d_demo_F3DStarsRenderer_f3dStarsResize(JNIEnv* env,
  * Signature: ()V
  */
 void JNICALL Java_com_forget3d_demo_F3DStarsRenderer_f3dStarsRender(JNIEnv* env, jclass cls) {
-    __android_log_print(ANDROID_LOG_INFO, "Forget3D", "call f3dStarsRender...");
 	if (!is_done)
 		return;
 
@@ -241,7 +240,7 @@ void JNICALL Java_com_forget3d_demo_F3DStarsRenderer_f3dStarsRender(JNIEnv* env,
 	//printf("strFps: %s\n", strFps);
 	font->drawString(4, 4, strFps);
 
-//	world->finishRender();
+	world->finishRender();
 
 	fps++;
 

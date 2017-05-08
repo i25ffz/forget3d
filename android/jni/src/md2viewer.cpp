@@ -58,19 +58,19 @@ void Java_com_forget3d_demo_F3DMD2ViewerRenderer_f3dMD2ViewerInit(JNIEnv* env, j
 
     world->setFog(fog);
 
-    Texture* texture0 = Image::loadTexture("/sdcard/tris.bmp");
-    Texture* texture1 = Image::loadTexture("/sdcard/weapon.bmp");
-    Texture* texture2 = Image::loadTexture("/sdcard/floor.bmp");
-    Texture* texture3 = Image::loadTexture("/sdcard/clouds.bmp");
+    Texture* texture0 = Image::loadTexture("/data/data/com.forget3d.demo/files/tris.bmp");
+    Texture* texture1 = Image::loadTexture("/data/data/com.forget3d.demo/files/weapon.bmp");
+    Texture* texture2 = Image::loadTexture("/data/data/com.forget3d.demo/files/floor.bmp");
+    Texture* texture3 = Image::loadTexture("/data/data/com.forget3d.demo/files/clouds.bmp");
 
     model = new ModelMD2();
-    model->loadModel("/sdcard/tris.md2");
+    model->loadModel("/data/data/com.forget3d.demo/files/tris.md2");
     model->setActionIndex(action_idx);
     if (texture0 != NULL)
         model->setTextureId(texture0->textureId);
 
     weapon = new ModelMD2();
-    weapon->loadModel("/sdcard/weapon.md2");
+    weapon->loadModel("/data/data/com.forget3d.demo/files/weapon.md2");
     weapon->setActionIndex(action_idx);
     if (texture1 != NULL)
         weapon->setTextureId(texture1->textureId);
@@ -85,7 +85,7 @@ void Java_com_forget3d_demo_F3DMD2ViewerRenderer_f3dMD2ViewerInit(JNIEnv* env, j
         skydome->setTextureId(texture3->textureId);
     skydome->setPosition(0.0f, (float)(-256 * sinf(DTOR * 10.0f)) - 28.0f, 0.0f);
 
-    font = new Font(16, 16, 24, 36, "/sdcard/font.bmp");
+    font = new Font(16, 16, 24, 36, "/data/data/com.forget3d.demo/files/font.bmp");
 
 	__android_log_print(ANDROID_LOG_INFO, "Forget3D", "model->getActionName(%d): %s\n", action_idx, model->getActionName(action_idx));
 
@@ -124,8 +124,6 @@ void Java_com_forget3d_demo_F3DMD2ViewerRenderer_f3dMD2ViewerResize(JNIEnv* env,
 void Java_com_forget3d_demo_F3DMD2ViewerRenderer_f3dMD2ViewerRender(JNIEnv* env, jclass cls) {
 	if (!is_done)
 		return;
-
-    __android_log_print(ANDROID_LOG_INFO, "Forget3D", "call f3dStarsRender...");
 
     world->prepareRender();
 

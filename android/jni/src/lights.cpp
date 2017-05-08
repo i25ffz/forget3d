@@ -3135,11 +3135,11 @@ void JNICALL Java_com_forget3d_demo_F3DLightsRenderer_f3dLightsInit(JNIEnv* env,
     __android_log_print(ANDROID_LOG_INFO, "Forget3D", "light create OK...");
 
     DELETEANDNULL(font, false);
-    font = new Font(16, 16, 24, 36, "/sdcard/font.bmp");
+    font = new Font(16, 16, 24, 36, "/data/data/com.forget3d.demo/files/font.bmp");
     __android_log_print(ANDROID_LOG_INFO, "Forget3D", "font create OK...");
 
 	DELETEANDNULL(image, false);
-	image = new Image("/sdcard/f3d_logo.bmp");
+	image = new Image("/data/data/com.forget3d.demo/files/f3d_logo.bmp");
 	__android_log_print(ANDROID_LOG_INFO, "Forget3D", "font image OK...");
 
 	//set teapot data
@@ -3183,8 +3183,6 @@ void JNICALL Java_com_forget3d_demo_F3DLightsRenderer_f3dLightsResize(JNIEnv* en
 void JNICALL Java_com_forget3d_demo_F3DLightsRenderer_f3dLightsRender(JNIEnv* env, jclass cls) {
 	if (!is_done)
 		return;
-
-    __android_log_print(ANDROID_LOG_INFO, "Forget3D", "call f3dLightsRender...");
 
     world->prepareRender();
 
