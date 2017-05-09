@@ -231,7 +231,7 @@ namespace F3D {
             return false;
 #if (defined(WIN32) || defined(_WIN32_WCE))
         m_surface = eglCreateWindowSurface(m_display, config, m_hwnd, NULL);
-#elif defined(linux)
+#elif defined(__linux__)
         m_surface = eglCreateWindowSurface(m_display, config, NULL, NULL);
 #else
         m_surface = eglCreateWindowSurface(m_display, config,

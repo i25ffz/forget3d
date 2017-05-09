@@ -42,7 +42,7 @@
 
 namespace F3D {
 
-#if defined(ANDROID) || defined(linux)
+#if defined(ANDROID) || defined(__linux__)
 #define F3D_PACKED __attribute__((packed))
 #elif (defined(WIN32) || defined(_WIN32_WCE))
 #ifndef F3D_PACKED

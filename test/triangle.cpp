@@ -31,8 +31,13 @@
  * ANY THEORY OF LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE
  * POSSESSION, USE OR PERFORMANCE OF THIS SOFTWARE.
  *****************************************************************************/
-#if defined(ANDROID) || defined(linux)
+#ifdef ANDROID
 #include <sys/time.h>
+#elif defined(__linux__)
+#include <sys/time.h>
+#include  <X11/Xlib.h>
+#include  <X11/Xatom.h>
+#include <X11/Xutil.h>
 #elif defined(_WIN32_WCE)
 #include <aygshell.h>
 #endif
@@ -70,10 +75,17 @@ static int  is_done = 0;
 static int  interval = 0;
 static GLfloat alpha = 0.0f;
 
-#if defined(ANDROID) || defined(linux)
+#ifdef ANDROID
 static int  i_time = 0;
 static struct timeval timeNow;
-#elif (defined(WIN32) || defined(_WIN32_WCE))
+#elif defined(__linux__)
+static int  i_time = 0;
+static struct timeval timeNow;
+static int  width = 480;
+static int  height = 640;
+static int  is_initialized = false;
+static Display *x_display = NULL;
+#elif defined(WIN32) || defined(_WIN32_WCE)
 static DWORD i_time = 0;
 static int	width = 480;
 static int	height = 640;
@@ -214,7 +226,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance,
 
     UpdateWindow(hwnd);
 #else
-//android main entry
+// default main entry
 int main(int argc, char *argv[]) {
 #endif
     printf("world->init()...\n");
@@ -228,8 +240,8 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-	//after create world, set is_initialized to true
-	is_initialized = true;
+    //after create world, set is_initialized to true
+    is_initialized = true;
 #else
     world->init();
 #endif
@@ -288,7 +300,7 @@ int main(int argc, char *argv[]) {
 
     printf("start loop...\n");
     is_done = 1;
-#if defined(ANDROID) || defined(linux)
+#if defined(ANDROID) || defined(__linux___)
     gettimeofday(&timeNow, NULL);
     i_time = CLOCK(timeNow);
 #elif (defined(WIN32) || defined(_WIN32_WCE))
@@ -337,7 +349,7 @@ int main(int argc, char *argv[]) {
             color.alpha = alpha;
             image->setImageColor(&color);
         }
-#if defined(ANDROID) || defined(linux)
+#if defined(ANDROID) || defined(__linux___)
         gettimeofday(&timeNow, NULL);
         interval = CLOCK(timeNow) - i_time;
         if (interval >= 20000) {
