@@ -80,7 +80,9 @@ namespace F3D {
         Fog         *m_fog;
         Light       *m_light;
 #if (defined(WIN32) || defined(_WIN32_WCE))
-		HWND        m_hwnd;
+        HWND        m_hwnd;
+#elif defined(__linux__)
+        EGLNativeWindowType m_hwnd;
 #endif
 
         //private functions
@@ -101,10 +103,14 @@ namespace F3D {
         void setFog(Fog* fog);
         void setLight(Light* light);
         void setBgColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-#if (defined(WIN32) || defined(_WIN32_WCE))
-		bool init(HWND hWnd);
+#ifdef ANDROID
+        bool init();
 #else
-		bool init();
+#if (defined(WIN32) || defined(_WIN32_WCE))
+        bool init(HWND hWnd);
+#else
+        bool init(EGLNativeWindowType hWnd);
+#endif
 #endif
         void setSize(int width, int height);
 		void resize(int width, int height);

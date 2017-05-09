@@ -232,7 +232,7 @@ namespace F3D {
 #if (defined(WIN32) || defined(_WIN32_WCE))
         m_surface = eglCreateWindowSurface(m_display, config, m_hwnd, NULL);
 #elif defined(__linux__)
-        m_surface = eglCreateWindowSurface(m_display, config, NULL, NULL);
+        m_surface = eglCreateWindowSurface(m_display, config, m_hwnd, NULL);
 #else
         m_surface = eglCreateWindowSurface(m_display, config,
                                            android_createDisplaySurface(), NULL);
@@ -339,12 +339,17 @@ namespace F3D {
 #endif //USE_WRAPPER_GL
     }
 
+#ifdef ANDROID
+    bool World::init() {
+#else
 #if (defined(WIN32) || defined(_WIN32_WCE))
     bool World::init(HWND hwnd) {
 		m_hwnd = hwnd;
 #else
-    bool World::init() {
-#endif
+    bool World::init(EGLNativeWindowType hwnd) {
+        m_hwnd = hwnd;
+#endif // WINXX
+#endif // ANDROID
         if (!initEGL()) {
 #ifdef DEBUG
             printf("initEGL() error!\n");

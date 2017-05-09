@@ -8,5 +8,6 @@ target_include_directories(triangle PRIVATE
                            
 target_link_libraries(triangle
                       f3d
+                      X11
                       EGL
                       GLESv1_CM)

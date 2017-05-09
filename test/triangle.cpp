@@ -225,6 +225,68 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance,
 #endif
 
     UpdateWindow(hwnd);
+#elif defined(__linux__)
+int main(int argc, char *argv[]) {
+    Window root;
+    XSetWindowAttributes swa;
+    XSetWindowAttributes  xattr;
+    Atom wm_state;
+    XWMHints hints;
+    XEvent xev;
+    EGLConfig ecfg;
+    EGLint num_config;
+    Window win;
+    EGLNativeWindowType  hwnd;
+
+    /*
+     * X11 native display initialization
+     */
+
+    x_display = XOpenDisplay(NULL);
+    if ( x_display == NULL )
+    {
+        return EGL_FALSE;
+    }
+
+    root = DefaultRootWindow(x_display);
+
+    swa.event_mask  =  ExposureMask | PointerMotionMask | KeyPressMask;
+    win = XCreateWindow(
+               x_display, root,
+               0, 0, width, height, 0,
+               CopyFromParent, InputOutput,
+               CopyFromParent, CWEventMask,
+               &swa );
+
+    xattr.override_redirect = false;
+    XChangeWindowAttributes ( x_display, win, CWOverrideRedirect, &xattr );
+
+    hints.input = true;
+    hints.flags = InputHint;
+    XSetWMHints(x_display, win, &hints);
+
+    // make the window visible on the screen
+    XMapWindow (x_display, win);
+    XStoreName (x_display, win, "triangle");
+
+    // get identifiers for the provided atom name strings
+    wm_state = XInternAtom (x_display, "_NET_WM_STATE", false);
+
+    memset ( &xev, 0, sizeof(xev) );
+    xev.type                 = ClientMessage;
+    xev.xclient.window       = win;
+    xev.xclient.message_type = wm_state;
+    xev.xclient.format       = 32;
+    xev.xclient.data.l[0]    = 1;
+    xev.xclient.data.l[1]    = false;
+    XSendEvent (
+       x_display,
+       DefaultRootWindow ( x_display ),
+       false,
+       SubstructureNotifyMask,
+       &xev );
+
+    hwnd = (EGLNativeWindowType) win;
 #else
 // default main entry
 int main(int argc, char *argv[]) {
@@ -232,6 +294,9 @@ int main(int argc, char *argv[]) {
     printf("world->init()...\n");
 
     world = World::getInstance();
+#ifdef ANDROID
+    world->init();
+#else
 #if (defined(WIN32) || defined(_WIN32_WCE))
     world->setSize(width, height);
     if (!world->init(hwnd)) {
@@ -239,11 +304,15 @@ int main(int argc, char *argv[]) {
 
         return 0;
     }
+#else
+    if (!world->init(hwnd)) {
+        printf("Init world error!\n");
 
+        return 0;
+    }
+#endif
     //after create world, set is_initialized to true
     is_initialized = true;
-#else
-    world->init();
 #endif
 
     world->setCameraCount(2);
