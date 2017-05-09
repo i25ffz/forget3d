@@ -31,7 +31,7 @@
  * ANY THEORY OF LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE
  * POSSESSION, USE OR PERFORMANCE OF THIS SOFTWARE.
  *****************************************************************************/
-#ifdef ANDROID
+#if defined(ANDROID) || defined(linux)
 #include <sys/time.h>
 #elif defined(_WIN32_WCE)
 #include <aygshell.h>
@@ -60,7 +60,7 @@ public:
 World*		world = NULL;
 Camera*		camera = NULL;
 ModelBase*  model = NULL;
-Font*       font = NULL;
+F3D::Font*       font = NULL;
 Image*      image = NULL;
 
 static GLfloat rotation = 0.0f;
@@ -70,7 +70,7 @@ static int  is_done = 0;
 static int  interval = 0;
 static GLfloat alpha = 0.0f;
 
-#ifdef ANDROID
+#if defined(ANDROID) || defined(linux)
 static int  i_time = 0;
 static struct timeval timeNow;
 #elif (defined(WIN32) || defined(_WIN32_WCE))
@@ -279,7 +279,7 @@ int main(int argc, char *argv[]) {
     printf("create triangle OK!\n");
 
     Color4f color = {1.0f, 1.0f, 1.0f, 0.2f};
-    font = new Font(16, 16, "font.bmp");
+    font = new F3D::Font(16, 16, "font.bmp");
     font->setFontColor(&color);
 
     image = new Image("f3d_logo.bmp");
@@ -288,7 +288,7 @@ int main(int argc, char *argv[]) {
 
     printf("start loop...\n");
     is_done = 1;
-#ifdef ANDROID
+#if defined(ANDROID) || defined(linux)
     gettimeofday(&timeNow, NULL);
     i_time = CLOCK(timeNow);
 #elif (defined(WIN32) || defined(_WIN32_WCE))
@@ -337,7 +337,7 @@ int main(int argc, char *argv[]) {
             color.alpha = alpha;
             image->setImageColor(&color);
         }
-#ifdef ANDROID
+#if defined(ANDROID) || defined(linux)
         gettimeofday(&timeNow, NULL);
         interval = CLOCK(timeNow) - i_time;
         if (interval >= 20000) {

@@ -44,6 +44,10 @@
 #include <tchar.h>
 #endif
 
+#if (defined(linux) || defined(unix))
+#include <cstring>
+#endif
+
 #include "f3d_gl.h"
 
 #ifndef M_PI
@@ -97,7 +101,7 @@ typedef struct {
 #define FIXED(value) \
         value < -32768.0f ? -32768 : value > 32767.0f ? 32767 : (int)(value * ONE)
 
-#ifdef ANDROID
+#if defined(ANDROID) || defined(linux)
 //get the ms unit time in Linux & Android
 #define CLOCK(v_time) v_time.tv_sec * 1000 + v_time.tv_usec / 1000
 #endif
@@ -117,7 +121,7 @@ typedef struct {
         pointer = NULL; \
     }
 
-#ifdef ANDROID
+#if defined(ANDROID) || defined(linux)
 #define stricmp strcasecmp
 #elif defined(_WIN32_WCE)
 #define stricmp _stricmp
