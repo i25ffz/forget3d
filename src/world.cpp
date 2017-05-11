@@ -138,6 +138,8 @@ namespace F3D {
 
     void World::setLight(Light* light) {
         m_light = light;
+        if (!m_light)
+            glDisable(GL_LIGHT0);
     }
 
     bool World::initEGL() {

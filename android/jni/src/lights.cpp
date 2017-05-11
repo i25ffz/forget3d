@@ -3175,6 +3175,459 @@ void JNICALL Java_com_forget3d_demo_F3DLightsRenderer_f3dLightsResize(JNIEnv* en
 	}
 }
 
+
+/* -- Now the various non-polyhedra (shapes involving circles) -- */
+/*
+ * Compute lookup table of cos and sin values forming a circle
+ * (or half circle if halfCircle==TRUE)
+ *
+ * Notes:
+ *    It is the responsibility of the caller to free these tables
+ *    The size of the table is (n+1) to form a connected loop
+ *    The last entry is exactly the same as the first
+ *    The sign of n can be flipped to get the reverse loop
+ */
+static void fghCircleTable(GLfloat **sint, GLfloat **cost, const int n, const GLboolean halfCircle)
+{
+    int i;
+
+    /* Table size, the sign of n flips the circle direction */
+    const int size = abs(n);
+
+    /* Determine the angle between samples */
+    const GLfloat angle = (halfCircle?1:2)*(GLfloat)M_PI/(GLfloat)( ( n == 0 ) ? 1 : n );
+
+    /* Allocate memory for n samples, plus duplicate of first entry at the end */
+    *sint = (GLfloat *)malloc(sizeof(GLfloat) * (size+1));
+    *cost = (GLfloat *)malloc(sizeof(GLfloat) * (size+1));
+
+    /* Bail out if memory allocation fails, fgError never returns */
+    if (!(*sint) || !(*cost))
+    {
+        free(*sint);
+        free(*cost);
+        __android_log_print(ANDROID_LOG_ERROR, "Forget3D", "Failed to allocate memory in fghCircleTable");
+    }
+
+    /* Compute cos and sin around the circle */
+    (*sint)[0] = 0.0;
+    (*cost)[0] = 1.0;
+
+    for (i=1; i<size; i++)
+    {
+        (*sint)[i] = (GLfloat)sin(angle*i);
+        (*cost)[i] = (GLfloat)cos(angle*i);
+    }
+
+
+    if (halfCircle)
+    {
+        (*sint)[size] =  0.0f;  /* sin PI */
+        (*cost)[size] = -1.0f;  /* cos PI */
+    }
+    else
+    {
+        /* Last sample is duplicate of the first (sin or cos of 2 PI) */
+        (*sint)[size] = (*sint)[0];
+        (*cost)[size] = (*cost)[0];
+    }
+}
+
+void fghGenerateTorus(
+        double dInnerRadius, double dOuterRadius, GLint nSides, GLint nRings, /*  input */
+        GLfloat **vertices, GLfloat **normals, int* nVert                     /* output */
+)
+{
+    GLfloat  iradius = (float)dInnerRadius;
+    GLfloat  oradius = (float)dOuterRadius;
+    int    i, j;
+
+    /* Pre-computed circle */
+    GLfloat *spsi, *cpsi;
+    GLfloat *sphi, *cphi;
+
+    /* number of unique vertices */
+    if (nSides<2 || nRings<2)
+    {
+        /* nothing to generate */
+        *nVert = 0;
+        return;
+    }
+    *nVert = nSides * nRings;
+
+    if ((*nVert) > 65535)
+        /*
+         * limit of glushort, thats 256*256 subdivisions, should be enough in practice. See note above
+         */
+        __android_log_print(ANDROID_LOG_WARN, "Forget3D", "fghGenerateTorus: too many slices or stacks requested, indices will wrap");
+
+    /* precompute values on unit circle */
+    fghCircleTable(&spsi,&cpsi, nRings,GL_FALSE);
+    fghCircleTable(&sphi,&cphi,-nSides,GL_FALSE);
+
+    /* Allocate vertex and normal buffers, bail out if memory allocation fails */
+    *vertices = (GLfloat *)malloc((*nVert)*3*sizeof(GLfloat));
+    *normals  = (GLfloat *)malloc((*nVert)*3*sizeof(GLfloat));
+    if (!(*vertices) || !(*normals))
+    {
+        free(*vertices);
+        free(*normals);
+        __android_log_print(ANDROID_LOG_ERROR, "Forget3D", "Failed to allocate memory in fghGenerateTorus");
+    }
+    __android_log_print(ANDROID_LOG_ERROR, "Forget3D", "begin gen vertices ... ");
+    __android_log_print(ANDROID_LOG_ERROR, "Forget3D", "================================= ");
+    for( j=0; j<nRings; j++ )
+    {
+        for( i=0; i<nSides; i++ )
+        {
+            int offset = 3 * ( j * nSides + i ) ;
+
+            (*vertices)[offset  ] = cpsi[j] * ( oradius + cphi[i] * iradius ) ;
+            (*vertices)[offset+1] = spsi[j] * ( oradius + cphi[i] * iradius ) ;
+            (*vertices)[offset+2] =                       sphi[i] * iradius  ;
+            (*normals )[offset  ] = cpsi[j] * cphi[i] ;
+            (*normals )[offset+1] = spsi[j] * cphi[i] ;
+            (*normals )[offset+2] =           sphi[i] ;
+            __android_log_print(ANDROID_LOG_ERROR, "Forget3D", "normals[%d]:%f, %f, %f", offset, (*normals)[offset  ],  (*normals)[offset+1],  (*normals)[offset+2] );
+        }
+    }
+    __android_log_print(ANDROID_LOG_ERROR, "Forget3D", "==end=============================== ");
+
+    /* Release sin and cos tables */
+    free(spsi);
+    free(cpsi);
+    free(sphi);
+    free(cphi);
+}
+
+static void fghDrawGeometrySolid11(GLfloat *vertices, GLfloat *normals, GLfloat *textcs, GLsizei numVertices,
+                                   GLushort *vertIdxs, GLsizei numParts, GLsizei numVertIdxsPerPart)
+{
+    int i;
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glNormalPointer(GL_FLOAT, 0, normals);
+
+    if (textcs)
+    {
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glTexCoordPointer(2, GL_FLOAT, 0, textcs);
+    }
+
+    if (!vertIdxs)
+        glDrawArrays(GL_TRIANGLES, 0, numVertices);
+    else
+    if (numParts>1)
+        for (i=0; i<numParts; i++)
+            glDrawElements(GL_TRIANGLE_STRIP, numVertIdxsPerPart, GL_UNSIGNED_SHORT, vertIdxs+i*numVertIdxsPerPart);
+    else
+        glDrawElements(GL_TRIANGLES, numVertIdxsPerPart, GL_UNSIGNED_SHORT, vertIdxs);
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
+    if (textcs)
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+}
+
+/* Draw the geometric shape with filled triangles
+ *
+ * Arguments:
+ * GLfloat *vertices, GLfloat *normals, GLfloat *textcs, GLsizei numVertices
+ *   The vertex coordinate, normal and texture coordinate buffers, and the
+ *   number of entries in those
+ * GLushort *vertIdxs
+ *   a vertex indices buffer, optional (not passed for the polyhedra with
+ *   triangular faces)
+ * GLsizei numParts, GLsizei numVertPerPart
+ *   polyhedra: not used for polyhedra with triangular faces
+       (numEdgePerFace==3), as each vertex+normal pair is drawn only once,
+       so no vertex indices are used.
+       Else, the shape was triangulated (DECOMPOSE_TO_TRIANGLE), leading to
+       reuse of some vertex+normal pairs, and thus the need to draw with
+       glDrawElements. numParts is always 1 in this case (we can draw the
+       whole object with one call to glDrawElements as the vertex index
+       array contains separate triangles), and numVertPerPart indicates
+       the number of vertex indices in the vertex array.
+ *   non-polyhedra: number of parts (GL_TRIANGLE_STRIPs) to be drawn
+       separately (numParts calls to glDrawElements) to create the object.
+       numVertPerPart indicates the number of vertex indices to be
+       processed at each draw call.
+ *   numParts * numVertPerPart gives the number of entries in the vertex
+ *     array vertIdxs
+ */
+void fghDrawGeometrySolid(GLfloat *vertices, GLfloat *normals, GLfloat *textcs, GLsizei numVertices,
+                          GLushort *vertIdxs, GLsizei numParts, GLsizei numVertIdxsPerPart)
+{
+//    GLint attribute_v_coord   = fgStructure.CurrentWindow->Window.attribute_v_coord;
+//    GLint attribute_v_normal  = fgStructure.CurrentWindow->Window.attribute_v_normal;
+//    GLint attribute_v_texture = fgStructure.CurrentWindow->Window.attribute_v_texture;
+//
+//    if (fgStructure.CurrentWindow->State.VisualizeNormals)
+//        /* generate normals for each vertex to be drawn as well */
+//        fghGenerateNormalVisualization(vertices, normals, numVertices);
+    fghDrawGeometrySolid11(vertices, normals, textcs, numVertices,
+                           vertIdxs, numParts, numVertIdxsPerPart);
+
+//    if (fgState.HasOpenGL20 && (attribute_v_coord != -1 || attribute_v_normal != -1))
+//    {
+//        /* User requested a 2.0 draw */
+//        fghDrawGeometrySolid20(vertices, normals, textcs, numVertices,
+//                               vertIdxs, numParts, numVertIdxsPerPart,
+//                               attribute_v_coord, attribute_v_normal, attribute_v_texture);
+//
+//        if (fgStructure.CurrentWindow->State.VisualizeNormals)
+//            /* draw normals for each vertex as well */
+//            fghDrawNormalVisualization20(attribute_v_coord);
+//    }
+//    else
+//    {
+//        fghDrawGeometrySolid11(vertices, normals, textcs, numVertices,
+//                               vertIdxs, numParts, numVertIdxsPerPart);
+
+//        if (fgStructure.CurrentWindow->State.VisualizeNormals)
+//            /* draw normals for each vertex as well */
+//            fghDrawNormalVisualization11();
+//    }
+}
+
+static void drawTorus( GLfloat dInnerRadius, GLfloat dOuterRadius, GLint nSides, GLint nRings)
+{
+    int i,j,idx, nVert;
+    GLfloat *vertices, *normals;
+
+    /* Generate vertices and normals */
+    fghGenerateTorus(dInnerRadius,dOuterRadius,nSides,nRings, &vertices,&normals,&nVert);
+
+    if (nVert==0)
+        /* nothing to draw */
+        return;
+
+    /* First, generate vertex index arrays for drawing with glDrawElements
+     * All stacks, including top and bottom are covered with a triangle
+     * strip.
+     */
+    GLushort  *stripIdx;
+
+    /* Allocate buffers for indices, bail out if memory allocation fails */
+    stripIdx = (GLushort *)malloc((nRings+1)*2*nSides*sizeof(GLushort));
+    if (!(stripIdx))
+    {
+        free(stripIdx);
+        __android_log_print(ANDROID_LOG_ERROR, "Forget3D", "Failed to allocate memory in fghTorus");
+    }
+
+    for( i=0, idx=0; i<nSides; i++ )
+    {
+        int ioff = 1;
+        if (i==nSides-1)
+            ioff = -i;
+
+        for( j=0; j<nRings; j++, idx+=2 )
+        {
+            int offset = j * nSides + i;
+            stripIdx[idx  ] = offset;
+            stripIdx[idx+1] = offset + ioff;
+        }
+        /* repeat first to close off shape */
+        stripIdx[idx  ] = i;
+        stripIdx[idx+1] = i + ioff;
+        idx +=2;
+    }
+
+    /* draw */
+    fghDrawGeometrySolid(vertices,normals,NULL,nVert,stripIdx,nSides,(nRings+1)*2);
+
+    /* cleanup allocated memory */
+    free(stripIdx);
+
+    /* cleanup allocated memory */
+    free(vertices);
+    free(normals);
+}
+
+
+void fghGenerateCylinder(
+        GLfloat radius, GLfloat height, GLint slices, GLint stacks, /*  input */
+        GLfloat **vertices, GLfloat **normals, int* nVert           /* output */
+)
+{
+    int i,j;
+    int idx = 0;    /* idx into vertex/normal buffer */
+
+    /* Step in z as stacks are drawn. */
+    GLfloat radf = (GLfloat)radius;
+    GLfloat z;
+    const GLfloat zStep = (GLfloat)height / ( ( stacks > 0 ) ? stacks : 1 );
+
+    /* Pre-computed circle */
+    GLfloat *sint,*cost;
+
+    /* number of unique vertices */
+    if (slices==0 || stacks<1)
+    {
+        /* nothing to generate */
+        *nVert = 0;
+        return;
+    }
+    *nVert = slices*(stacks+3)+2;   /* need two extra stacks for closing off top and bottom with correct normals */
+
+    if ((*nVert) > 65535)
+        /*
+         * limit of glushort, thats 256*256 subdivisions, should be enough in practice. See note above
+         */
+        __android_log_print(ANDROID_LOG_WARN, "Forget3D", "fghGenerateCylinder: too many slices or stacks requested, indices will wrap");
+
+    /* Pre-computed circle */
+    fghCircleTable(&sint,&cost,-slices,GL_FALSE);
+
+    /* Allocate vertex and normal buffers, bail out if memory allocation fails */
+    *vertices = (GLfloat *)malloc((*nVert)*3*sizeof(GLfloat));
+    *normals  = (GLfloat *)malloc((*nVert)*3*sizeof(GLfloat));
+    if (!(*vertices) || !(*normals))
+    {
+        free(*vertices);
+        free(*normals);
+        __android_log_print(ANDROID_LOG_ERROR, "Forget3D", "Failed to allocate memory in fghGenerateCylinder");
+    }
+
+    z=0;
+    /* top on Z-axis */
+    (*vertices)[0] =  0.f;
+    (*vertices)[1] =  0.f;
+    (*vertices)[2] =  0.f;
+    (*normals )[0] =  0.f;
+    (*normals )[1] =  0.f;
+    (*normals )[2] = -1.f;
+    idx = 3;
+    /* other on top (get normals right) */
+    for (j=0; j<slices; j++, idx+=3)
+    {
+        (*vertices)[idx  ] = cost[j]*radf;
+        (*vertices)[idx+1] = sint[j]*radf;
+        (*vertices)[idx+2] = z;
+        (*normals )[idx  ] = 0.f;
+        (*normals )[idx+1] = 0.f;
+        (*normals )[idx+2] = -1.f;
+    }
+
+    /* each stack */
+    for (i=0; i<stacks+1; i++ )
+    {
+        for (j=0; j<slices; j++, idx+=3)
+        {
+            (*vertices)[idx  ] = cost[j]*radf;
+            (*vertices)[idx+1] = sint[j]*radf;
+            (*vertices)[idx+2] = z;
+            (*normals )[idx  ] = cost[j];
+            (*normals )[idx+1] = sint[j];
+            (*normals )[idx+2] = 0.f;
+        }
+
+        z += zStep;
+    }
+
+    /* other on bottom (get normals right) */
+    z -= zStep;
+    for (j=0; j<slices; j++, idx+=3)
+    {
+        (*vertices)[idx  ] = cost[j]*radf;
+        (*vertices)[idx+1] = sint[j]*radf;
+        (*vertices)[idx+2] = z;
+        (*normals )[idx  ] = 0.f;
+        (*normals )[idx+1] = 0.f;
+        (*normals )[idx+2] = 1.f;
+    }
+
+    /* bottom */
+    (*vertices)[idx  ] =  0.f;
+    (*vertices)[idx+1] =  0.f;
+    (*vertices)[idx+2] =  height;
+    (*normals )[idx  ] =  0.f;
+    (*normals )[idx+1] =  0.f;
+    (*normals )[idx+2] =  1.f;
+
+    /* Release sin and cos tables */
+    free(sint);
+    free(cost);
+}
+
+static void drawCylinder( GLfloat radius, GLfloat height, GLint slices, GLint stacks)
+{
+    int i,j,idx, nVert;
+    GLfloat *vertices, *normals;
+
+    /* Generate vertices and normals */
+    /* Note, (stacks+1)*slices vertices for side of object, 2*slices+2 for top and bottom closures */
+    fghGenerateCylinder(radius,height,slices,stacks,&vertices,&normals,&nVert);
+
+    if (nVert==0)
+        /* nothing to draw */
+        return;
+
+    /* First, generate vertex index arrays for drawing with glDrawElements
+     * All stacks, including top and bottom are covered with a triangle
+     * strip.
+     */
+    GLushort  *stripIdx;
+    /* Create index vector */
+    GLushort offset;
+
+    /* Allocate buffers for indices, bail out if memory allocation fails */
+    stripIdx = (GLushort  *)malloc((slices+1)*2*(stacks+2)*sizeof(GLushort));    /*stacks +2 because of closing off bottom and top */
+    if (!(stripIdx))
+    {
+        free(stripIdx);
+        __android_log_print(ANDROID_LOG_ERROR, "Forget3D", "Failed to allocate memory in fghCylinder");
+    }
+
+    /* top stack */
+    for (j=0, idx=0;  j<slices;  j++, idx+=2)
+    {
+        stripIdx[idx  ] = 0;
+        stripIdx[idx+1] = j+1;              /* 0 is top vertex, 1 is first for first stack */
+    }
+    stripIdx[idx  ] = 0;                    /* repeat first slice's idx for closing off shape */
+    stripIdx[idx+1] = 1;
+    idx+=2;
+
+    /* middle stacks: */
+    /* Strip indices are relative to first index belonging to strip, NOT relative to first vertex/normal pair in array */
+    for (i=0; i<stacks; i++, idx+=2)
+    {
+        offset = 1+(i+1)*slices;                /* triangle_strip indices start at 1 (0 is top vertex), and we advance one stack down as we go along */
+        for (j=0; j<slices; j++, idx+=2)
+        {
+            stripIdx[idx  ] = offset+j;
+            stripIdx[idx+1] = offset+j+slices;
+        }
+        stripIdx[idx  ] = offset;               /* repeat first slice's idx for closing off shape */
+        stripIdx[idx+1] = offset+slices;
+    }
+
+    /* top stack */
+    offset = 1+(stacks+2)*slices;
+    for (j=0; j<slices; j++, idx+=2)
+    {
+        stripIdx[idx  ] = offset+j;
+        stripIdx[idx+1] = nVert-1;              /* zero based index, last element in array (bottom vertex)... */
+    }
+    stripIdx[idx  ] = offset;
+    stripIdx[idx+1] = nVert-1;                  /* repeat first slice's idx for closing off shape */
+
+    /* draw */
+    fghDrawGeometrySolid(vertices,normals,NULL,nVert,stripIdx,stacks+2,(slices+1)*2);
+
+    /* cleanup allocated memory */
+    free(stripIdx);
+
+    /* cleanup allocated memory */
+    free(vertices);
+    free(normals);
+}
+
 /*
  * Class:     com_forget3d_demo_F3DLightsRenderer
  * Method:    f3dLightsRender
@@ -3196,22 +3649,26 @@ void JNICALL Java_com_forget3d_demo_F3DLightsRenderer_f3dLightsRender(JNIEnv* en
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 
-    glScalef(8.0f, 8.0f, 8.0f);
+    glScalef(2.0f, 2.0f, 2.0f);
     glRotatef(rotation, 1.0f, 0.0f, 0.0f);
-    glRotatef(1.2f * rotation, 0.0f, 1.0f, 0.0f);
+//    glRotatef(1.2f * rotation, 0.0f, 1.0f, 0.0f);
 
-    //draw teapot
-    int start = 0, i = 0;
-    while(i < NUM_INDICES) {
-        if(teapot_indices[i] == -1) {
-            glDrawElements(GL_TRIANGLE_STRIP, i - start, GL_UNSIGNED_SHORT, &teapot_indices[start]);
-            start = i + 1;
-        }
-        i++;
-    }
+//    //draw teapot
+//    int start = 0, i = 0;
+//    while(i < NUM_INDICES) {
+//        if(teapot_indices[i] == -1) {
+//            glDrawElements(GL_TRIANGLE_STRIP, i - start, GL_UNSIGNED_SHORT, &teapot_indices[start]);
+//            start = i + 1;
+//        }
+//        i++;
+//    }
+//
+//    if(start < NUM_INDICES)
+//        glDrawElements(GL_TRIANGLE_STRIP, i - start - 1, GL_UNSIGNED_SHORT, &teapot_indices[start]);
 
-    if(start < NUM_INDICES)
-        glDrawElements(GL_TRIANGLE_STRIP, i - start - 1, GL_UNSIGNED_SHORT, &teapot_indices[start]);
+
+//    drawTorus(0.2f, 0.5f, 4, 36);
+    drawCylinder(0.3f, 0.4f, 36, 1);
 
     //printf("strFps: %s\n", strFps);
     font->drawString(4, 4, strFps);
