@@ -81,7 +81,7 @@ namespace F3D {
         Light       *m_light;
 #if (defined(WIN32) || defined(_WIN32_WCE))
         HWND        m_hwnd;
-#elif defined(__linux__)
+#elif (!defined(ANDROID) && defined(__linux__))
         EGLNativeWindowType m_hwnd;
 #endif
 

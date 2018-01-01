@@ -10,4 +10,4 @@ target_link_libraries(triangle
                       f3d
                       X11
                       EGL
-                      GLESv1_CM)
+                      GLESv2)
