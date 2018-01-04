@@ -148,6 +148,7 @@ namespace F3D {
     }
 
     void Mesh::initGlCmds() {
+#if 0
         if (m_vertices != NULL)
             glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -163,12 +164,13 @@ namespace F3D {
 
         if (m_colors != NULL)
             glEnableClientState(GL_COLOR_ARRAY);
+#endif
     }
 
     void Mesh::renderMesh() {
         if (!m_enabled)
             return;
-
+#if 0
         //save current matrix
         glPushMatrix();
 
@@ -228,6 +230,7 @@ namespace F3D {
             glDrawArrays(GL_TRIANGLES, 0, m_triangleNums * 3);
         //restore matrix
         glPopMatrix();
+#endif
     }
 
 }

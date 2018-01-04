@@ -38,8 +38,6 @@
 #include  <X11/Xlib.h>
 #include  <X11/Xatom.h>
 #include <X11/Xutil.h>
-#elif defined(_WIN32_WCE)
-#include <aygshell.h>
 #endif
 
 #include "f3d.h"
@@ -94,138 +92,7 @@ static HWND	hwnd;
 static int  camera_idx = 1;
 #endif
 
-#if (defined(WIN32) || defined(_WIN32_WCE))
-
-static LRESULT CALLBACK WndProc(HWND wnd, UINT message,
-                                WPARAM wParam, LPARAM lParam) {
-    RECT rc;
-    int useDefWindowProc = 0;
-
-    switch (message) {
-    case WM_CLOSE:
-        DestroyWindow(wnd);
-        is_done = 0;
-        break;
-
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        is_done = 0;
-        break;
-
-    case WM_KEYDOWN:
-#if 0
-        TCHAR szError[32];
-        wsprintf (szError, TEXT("WM_KEYDOWN: 0x%2x"), wParam);
-        MessageBox (hwnd, szError, TEXT("Debug"), MB_OK);
-#endif
-        if (wParam == VK_ESCAPE || wParam == 0x51 || wParam == 0x86) {
-            is_done = 0;
-        } else if (wParam == VK_UP || wParam == VK_DOWN) {
-            camera_idx = (camera_idx ? 0 : 1);
-            world->setActiveCamera(camera_idx);
-		}
-
-        useDefWindowProc = 1;
-        break;
-
-    case WM_KEYUP:
-        useDefWindowProc = 1;
-        break;
-
-    case WM_SIZE:
-        GetClientRect(hwnd, &rc);
-        width = rc.right;
-        height = rc.bottom;
-		if (is_initialized) {
-			world->resize(width, height);
-		}
-        break;
-
-    case WM_LBUTTONUP:
-    case WM_LBUTTONDOWN:
-        printf("%s event, x: %d, y: %d\n", message == WM_LBUTTONUP ? "WM_LBUTTONUP" : "WM_LBUTTONDOWN", LOWORD(lParam), HIWORD(lParam));
-        if (message == WM_LBUTTONUP) {
-            camera_idx = (camera_idx ? 0 : 1);
-            world->setActiveCamera(camera_idx);
-        }
-
-        break;
-
-    default:
-        useDefWindowProc = 1;
-    }
-
-    if (useDefWindowProc)
-        return DefWindowProc(wnd, message, wParam, lParam);
-
-    return 0;
-}
-
-#define	WINDOW_CLASS    TEXT("F3D_Triangle")
-#define	WINDOW_TITLE           TEXT("Triangle")
-int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance,
-                   LPTSTR cmdLine, int cmdShow) {
-    MSG msg;
-    WNDCLASS wc;
-    DWORD windowStyle;
-    int windowX, windowY;
-
-    // register class
-    wc.style = CS_HREDRAW | CS_VREDRAW;
-    wc.lpfnWndProc = (WNDPROC)WndProc;
-    wc.cbClsExtra = 0;
-    wc.cbWndExtra = 0;
-    wc.hInstance = instance;
-    wc.hIcon = NULL;
-    wc.hCursor = 0;
-#ifdef WIN32
-    wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-#else
-    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-#endif
-    wc.lpszMenuName = NULL;
-    wc.lpszClassName = WINDOW_CLASS;
-
-    if (!RegisterClass(&wc)) {
-        //GetLastError()
-        return FALSE;
-    }
-
-    // init instance
-    windowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE;
-#ifdef _WIN32_WCE
-    width = GetSystemMetrics(SM_CXSCREEN);
-    height = GetSystemMetrics(SM_CYSCREEN);
-    windowX = windowY = 0;
-#else
-    windowStyle |= WS_OVERLAPPEDWINDOW;
-    windowX = CW_USEDEFAULT;
-    windowY = 0;
-#endif
-    hwnd = CreateWindow(WINDOW_CLASS,
-                        WINDOW_TITLE,
-                        windowStyle,
-                        windowX,
-                        windowY,
-                        width,
-                        height,
-                        NULL,
-                        NULL,
-                        instance,
-                        NULL);
-    if (!hwnd)
-        return FALSE;
-
-    ShowWindow(hwnd, cmdShow);
-
-#ifdef _WIN32_WCE
-    SHFullScreen(hwnd,
-                 SHFS_HIDETASKBAR | SHFS_HIDESIPBUTTON | SHFS_HIDESTARTICON);
-    MoveWindow(hwnd, 0, 0, width, height, TRUE);
-#endif
-
-    UpdateWindow(hwnd);
-#elif defined(__linux__)
+#if defined(__linux__)
 int main(int argc, char *argv[]) {
     Window root;
     XSetWindowAttributes swa;

@@ -56,12 +56,6 @@ namespace F3D {
 // force one byte alignment
 #if defined(ANDROID) || defined(__linux__)
 #define F3D_PACKED __attribute__((packed))
-#elif (defined(WIN32) || defined(_WIN32_WCE))
-#ifndef F3D_PACKED
-#pragma pack( push, 1 )
-//#pragma pack( 1 )
-#define F3D_PACKED
-#endif
 #endif
 
     /**
@@ -141,9 +135,6 @@ namespace F3D {
         Matrix              *finMatrix;         // final martrix
     } F3D_PACKED ms3d_joint_t;
 
-#if (defined(WIN32) || defined(_WIN32_WCE))
-#pragma pack( pop )
-#endif
 #undef F3D_PACKED
 
     /**

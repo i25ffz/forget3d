@@ -7,9 +7,9 @@
 		<Option compiler="armelfgcc" />
 		<Build>
 			<Target title="release">
-				<Option output="..\lib\libf3d.a" prefix_auto="0" extension_auto="0" />
+				<Option output="../lib/libf3d.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="..\objs\release" />
+				<Option object_output="../objs/release" />
 				<Option type="2" />
 				<Option compiler="armelfgcc" />
 				<Option createDefFile="1" />
@@ -37,16 +37,16 @@
 					<Add option="-D__ARM_ARCH_5E__" />
 					<Add option="-D__ARM_ARCH_5TE__" />
 					<Add option="-DNDEBUG" />
-					<Add directory="..\include" />
+					<Add directory="../include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 				</Linker>
 			</Target>
 			<Target title="debug">
-				<Option output="..\lib\libf3d_d.a" prefix_auto="0" extension_auto="0" />
+				<Option output="../lib/libf3d_d.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="..\objs\debug" />
+				<Option object_output="../objs/debug" />
 				<Option type="2" />
 				<Option compiler="armelfgcc" />
 				<Option createDefFile="1" />
@@ -74,13 +74,13 @@
 					<Add option="-D__ARM_ARCH_5E__" />
 					<Add option="-D__ARM_ARCH_5TE__" />
 					<Add option="-DDEBUG" />
-					<Add directory="..\include" />
+					<Add directory="../include" />
 				</Compiler>
 			</Target>
 			<Target title="ndk">
-				<Option output="..\lib\libf3d_ndk.a" prefix_auto="0" extension_auto="0" />
+				<Option output="../lib/libf3d_ndk.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="..\objs\ndk" />
+				<Option object_output="../objs/ndk" />
 				<Option type="2" />
 				<Option compiler="armelfgcc" />
 				<Option createDefFile="1" />
@@ -109,49 +109,100 @@
 					<Add option="-D__ARM_ARCH_5E__" />
 					<Add option="-D__ARM_ARCH_5TE__" />
 					<Add option="-DNDEBUG" />
-					<Add directory="..\include" />
+					<Add directory="../include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 				</Linker>
 			</Target>
+			<Target title="rel-linux">
+				<Option output="../lib/libf3d.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="../objs/release" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add option="-fpic" />
+					<Add option="-ffunction-sections" />
+					<Add option="-funwind-tables" />
+					<Add option="-fstack-protector" />
+					<Add option="-fno-short-enums" />
+					<Add option="-fno-exceptions" />
+					<Add option="-fno-rtti" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-finline-limit=64" />
+					<Add option="-DNDEBUG" />
+					<Add directory="../include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="dbg-linux">
+				<Option output="../lib/libf3d_d.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="../objs/debug" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-fpic" />
+					<Add option="-ffunction-sections" />
+					<Add option="-funwind-tables" />
+					<Add option="-fstack-protector" />
+					<Add option="-fno-short-enums" />
+					<Add option="-fno-exceptions" />
+					<Add option="-fno-rtti" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-finline-limit=64" />
+					<Add option="-DDEBUG" />
+					<Add directory="../include" />
+				</Compiler>
+			</Target>
 		</Build>
-		<Unit filename="..\include\camera.h" />
-		<Unit filename="..\include\collision.h" />
-		<Unit filename="..\include\f3d.h" />
-		<Unit filename="..\include\f3d_gl.h" />
-		<Unit filename="..\include\fog.h" />
-		<Unit filename="..\include\font.h" />
-		<Unit filename="..\include\image.h" />
-		<Unit filename="..\include\light.h" />
-		<Unit filename="..\include\mathlib.h" />
-		<Unit filename="..\include\mesh.h" />
-		<Unit filename="..\include\model.h" />
-		<Unit filename="..\include\model_g3d.h" />
-		<Unit filename="..\include\model_md2.h" />
-		<Unit filename="..\include\model_ms3d.h" />
-		<Unit filename="..\include\plane.h" />
-		<Unit filename="..\include\skydome.h" />
-		<Unit filename="..\include\terrain.h" />
-		<Unit filename="..\include\utils.h" />
-		<Unit filename="..\include\world.h" />
-		<Unit filename="..\src\camera.cpp" />
-		<Unit filename="..\src\collision.cpp" />
-		<Unit filename="..\src\fog.cpp" />
-		<Unit filename="..\src\font.cpp" />
-		<Unit filename="..\src\image.cpp" />
-		<Unit filename="..\src\light.cpp" />
-		<Unit filename="..\src\mathlib.cpp" />
-		<Unit filename="..\src\mesh.cpp" />
-		<Unit filename="..\src\model.cpp" />
-		<Unit filename="..\src\model_g3d.cpp" />
-		<Unit filename="..\src\model_md2.cpp" />
-		<Unit filename="..\src\model_ms3d.cpp" />
-		<Unit filename="..\src\plane.cpp" />
-		<Unit filename="..\src\skydome.cpp" />
-		<Unit filename="..\src\terrain.cpp" />
-		<Unit filename="..\src\utils.cpp" />
-		<Unit filename="..\src\world.cpp" />
+		<Unit filename="../include/camera.h" />
+		<Unit filename="../include/collision.h" />
+		<Unit filename="../include/f3d.h" />
+		<Unit filename="../include/f3d_gl.h" />
+		<Unit filename="../include/fog.h" />
+		<Unit filename="../include/font.h" />
+		<Unit filename="../include/image.h" />
+		<Unit filename="../include/light.h" />
+		<Unit filename="../include/mathlib.h" />
+		<Unit filename="../include/mesh.h" />
+		<Unit filename="../include/model.h" />
+		<Unit filename="../include/model_g3d.h" />
+		<Unit filename="../include/model_md2.h" />
+		<Unit filename="../include/model_ms3d.h" />
+		<Unit filename="../include/plane.h" />
+		<Unit filename="../include/skydome.h" />
+		<Unit filename="../include/terrain.h" />
+		<Unit filename="../include/utils.h" />
+		<Unit filename="../include/world.h" />
+		<Unit filename="../src/camera.cpp" />
+		<Unit filename="../src/collision.cpp" />
+		<Unit filename="../src/fog.cpp" />
+		<Unit filename="../src/font.cpp" />
+		<Unit filename="../src/image.cpp" />
+		<Unit filename="../src/light.cpp" />
+		<Unit filename="../src/mathlib.cpp" />
+		<Unit filename="../src/mesh.cpp" />
+		<Unit filename="../src/model.cpp" />
+		<Unit filename="../src/model_g3d.cpp" />
+		<Unit filename="../src/model_md2.cpp" />
+		<Unit filename="../src/model_ms3d.cpp" />
+		<Unit filename="../src/plane.cpp" />
+		<Unit filename="../src/skydome.cpp" />
+		<Unit filename="../src/terrain.cpp" />
+		<Unit filename="../src/utils.cpp" />
+		<Unit filename="../src/world.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

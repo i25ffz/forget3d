@@ -87,13 +87,6 @@ namespace F3D {
         if (!file) {
             printf("Open MS3D model:%s failure!\n", filename);
 
-        #if defined(WIN32) || defined(_WIN32_WCE)
-			TCHAR errorStr[512];
-			wsprintf(errorStr, TEXT("Open MS3d model:[%s] error!"), Utils::getFileName(filename));
-
-			MessageBox(0, errorStr, TEXT("MS3D"), MB_OK);
-		#endif
-
             return false;
         }
 
@@ -102,13 +95,6 @@ namespace F3D {
 #ifdef DEBUG
         printf("id:%s\n", m_header.id);
         printf("version:%d\n", m_header.version);
-
-    #if defined(WIN32) || defined(_WIN32_WCE)
-		TCHAR infoStr[512];
-
-		wsprintf(infoStr, TEXT("id:%s\nversion: %d"), m_header.id, m_header.version);
-		MessageBox(0, infoStr, TEXT("MS3D"), MB_OK);
-    #endif
 #endif
 
         if (!strcmp((char *)m_header.id, "MS3D000000") || m_header.version != 4) {
@@ -123,11 +109,6 @@ namespace F3D {
         fread(&m_verticesCount, sizeof(GLushort), 1, file);
 #ifdef DEBUG
         printf("m_verticesCount:%d\n", m_verticesCount);
-
-    #if defined(WIN32) || defined(_WIN32_WCE)
-		wsprintf(infoStr, TEXT("m_verticesCount: %d"), m_verticesCount);
-		MessageBox(0, infoStr, TEXT("MS3D"), MB_OK);
-    #endif
 #endif
         m_vertices = new ms3d_vertex_t[m_verticesCount];
         fread(m_vertices, sizeof(ms3d_vertex_t), m_verticesCount, file);
@@ -136,11 +117,6 @@ namespace F3D {
         fread(&m_trianglesCount, sizeof(GLushort), 1, file);
 #ifdef DEBUG
         printf("m_trianglesCount:%d\n", m_trianglesCount);
-
-    #if defined(WIN32) || defined(_WIN32_WCE)
-		wsprintf(infoStr, TEXT("m_trianglesCount: %d"), m_trianglesCount);
-		MessageBox(0, infoStr, TEXT("MS3D"), MB_OK);
-    #endif
 #endif
         m_triangles = new ms3d_triangle_t[m_trianglesCount];
         fread(m_triangles, sizeof(ms3d_triangle_t), m_trianglesCount, file);
@@ -149,11 +125,6 @@ namespace F3D {
         fread(&m_groupsCount, sizeof(GLushort), 1, file);
 #ifdef DEBUG
         printf("m_groupsCount:%d\n", m_groupsCount);
-
-    #if defined(WIN32) || defined(_WIN32_WCE)
-		wsprintf(infoStr, TEXT("m_groupsCount: %d"), m_groupsCount);
-		MessageBox(0, infoStr, TEXT("MS3D"), MB_OK);
-    #endif
 #endif
         //set model mesh count to group count to init model meshs.
         setMeshCount(m_groupsCount);
@@ -210,11 +181,6 @@ namespace F3D {
         fread(&m_jointsCount, sizeof(GLushort), 1, file);
 #ifdef DEBUG
         printf("m_jointsCount:%d\n", m_jointsCount);
-
-    #if defined(WIN32) || defined(_WIN32_WCE)
-		wsprintf(infoStr, TEXT("m_jointsCount: %d"), m_jointsCount);
-		MessageBox(0, infoStr, TEXT("MS3D"), MB_OK);
-    #endif
 #endif
         if (m_jointsCount > 0) {
             m_joints = new ms3d_joint_t[m_jointsCount];

@@ -8,7 +8,7 @@
 		<Build>
 			<Target title="release">
 				<Option output="triangle" prefix_auto="0" extension_auto="0" />
-				<Option object_output="..\objs\release" />
+				<Option object_output="../objs/release" />
 				<Option type="1" />
 				<Option compiler="armelfgcc" />
 				<Option use_console_runner="0" />
@@ -36,7 +36,7 @@
 					<Add option="-D__ARM_ARCH_5E__" />
 					<Add option="-D__ARM_ARCH_5TE__" />
 					<Add option="-DNDEBUG" />
-					<Add directory="..\include" />
+					<Add directory="../include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -47,7 +47,7 @@
 					<Add option="-Wl,-rpath-link=/cygdrive/d/android-ndk-r4/build/prebuilt/windows/arm-eabi-4.4.0/arm-eabi/lib" />
 					<Add option="$(#arm_toolchain)\arm-eabi\lib\crtbegin_dynamic.o" />
 					<Add option="$(#arm_toolchain)\arm-eabi\lib\crtend_android.o" />
-					<Add library="..\lib\libf3d.a" />
+					<Add library="../lib/libf3d.a" />
 					<Add library="c" />
 					<Add library="GLESv1_CM" />
 					<Add library="ui" />
@@ -60,7 +60,7 @@
 			</Target>
 			<Target title="debug">
 				<Option output="triangle_d" prefix_auto="0" extension_auto="0" />
-				<Option object_output="..\objs\debug" />
+				<Option object_output="../objs/debug" />
 				<Option type="1" />
 				<Option compiler="armelfgcc" />
 				<Option use_console_runner="0" />
@@ -87,7 +87,7 @@
 					<Add option="-D__ARM_ARCH_5E__" />
 					<Add option="-D__ARM_ARCH_5TE__" />
 					<Add option="-DDEBUG" />
-					<Add directory="..\include" />
+					<Add directory="../include" />
 				</Compiler>
 				<Linker>
 					<Add option="-nostdlib -Bdynamic" />
@@ -97,7 +97,7 @@
 					<Add option="-Wl,-rpath-link=/cygdrive/d/android-ndk-r4/build/prebuilt/windows/arm-eabi-4.4.0/arm-eabi/lib" />
 					<Add option="$(#arm_toolchain)\arm-eabi\lib\crtbegin_dynamic.o" />
 					<Add option="$(#arm_toolchain)\arm-eabi\lib\crtend_android.o" />
-					<Add library="..\lib\libf3d_d.a" />
+					<Add library="../lib/libf3d_d.a" />
 					<Add library="c" />
 					<Add library="GLESv1_CM" />
 					<Add library="ui" />
@@ -108,8 +108,37 @@
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
+			<Target title="dbg-linux">
+				<Option output="triangle_d" prefix_auto="0" extension_auto="0" />
+				<Option object_output="../objs/debug" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-g" />
+					<Add option="-fpic" />
+					<Add option="-ffunction-sections" />
+					<Add option="-funwind-tables" />
+					<Add option="-fstack-protector" />
+					<Add option="-fno-short-enums" />
+					<Add option="-fno-exceptions" />
+					<Add option="-fno-rtti" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-finline-limit=64" />
+					<Add option="-DDEBUG" />
+					<Add directory="../include" />
+				</Compiler>
+				<Linker>
+					<Add library="../lib/libf3d_d.a" />
+					<Add library="GLESv2" />
+					<Add library="EGL" />
+					<Add library="m" />
+					<Add library="X11" />
+				</Linker>
+			</Target>
 		</Build>
-		<Unit filename="..\test\triangle.cpp" />
+		<Unit filename="../test/triangle.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

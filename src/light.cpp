@@ -77,6 +77,7 @@ namespace F3D {
     }
 
     void Light::initLight() {
+#if 0
         glEnable(GL_LIGHT0);
 
         if (m_position != NULL)
@@ -93,6 +94,7 @@ namespace F3D {
 
         if (m_emission != NULL)
             glLightfv(GL_LIGHT0, GL_EMISSION, m_emission);
+#endif
     }
 
 }

@@ -114,11 +114,8 @@ namespace F3D {
     }
 
     void Font::drawString(int x, int y, int fontWidth, int fontHeight, const char *str, DrawAnchor anchor) {
-#ifndef GL_OES_draw_texture
-#ifdef DEBUG
+#if 0
         printf("Unsupport GL_OES_draw_texture extension...\n");
-#endif
-#else
         glPushMatrix();
 
         glDisable(GL_DEPTH_TEST);

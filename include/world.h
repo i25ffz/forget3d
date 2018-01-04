@@ -79,9 +79,7 @@ namespace F3D {
         Camera      *m_cameras;
         Fog         *m_fog;
         Light       *m_light;
-#if (defined(WIN32) || defined(_WIN32_WCE))
-        HWND        m_hwnd;
-#elif (!defined(ANDROID) && defined(__linux__))
+#if (!defined(ANDROID) && defined(__linux__))
         EGLNativeWindowType m_hwnd;
 #endif
 
@@ -106,11 +104,7 @@ namespace F3D {
 #ifdef ANDROID
         bool init();
 #else
-#if (defined(WIN32) || defined(_WIN32_WCE))
-        bool init(HWND hWnd);
-#else
         bool init(EGLNativeWindowType hWnd);
-#endif
 #endif
         void setSize(int width, int height);
 		void resize(int width, int height);

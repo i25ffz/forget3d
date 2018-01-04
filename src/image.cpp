@@ -109,11 +109,9 @@ namespace F3D {
     }
 
     void Image::drawImage(int x, int y, int crpX, int crpY, int crpWidth, int crpHeight, int width, int height, DrawAnchor anchor) {
-#ifndef GL_OES_draw_texture
-#ifdef DEBUG
+#if 0
         printf("Unsupport GL_OES_draw_texture extension...\n");
-#endif
-#else
+
         glPushMatrix();
 
         glDisable(GL_DEPTH_TEST);
@@ -185,12 +183,6 @@ namespace F3D {
         if (!fd) {
 #ifdef DEBUG
             printf("Open %s error!\n", filename);
-        #if defined(WIN32) || defined(_WIN32_WCE)
-			TCHAR errorStr[512];
-			wsprintf(errorStr, TEXT("open image:[%s] error!"), Utils::getFileName(filename, is_absPath));
-
-			MessageBox(0, errorStr, TEXT("Image"), MB_OK);
-        #endif
 #endif
             return NULL;
         }
@@ -213,10 +205,10 @@ namespace F3D {
         glGenTextures(1, &(texture->textureId));
         glBindTexture(GL_TEXTURE_2D, texture->textureId);
 
-        glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         glTexImage2D(GL_TEXTURE_2D, 0, texture->type, texture->width, texture->height, 0, texture->type, GL_UNSIGNED_BYTE, buffer);
 

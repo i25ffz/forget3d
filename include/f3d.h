@@ -39,11 +39,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#if (defined(WIN32) || defined(_WIN32_WCE))
-#include <windows.h>
-#include <tchar.h>
-#endif
-
 #ifdef __linux__
 #include <cstring>
 #endif
@@ -52,12 +47,6 @@
 
 #ifndef M_PI
 #define M_PI 3.1415926535897932f
-#endif
-
-#ifdef _WIN32_WCE
-#define sinf(value) sin(value)
-#define asinf(value) asin(value)
-#define cosf(value) cos(value)
 #endif
 
 #define DTOR (M_PI / 180.0f)
@@ -123,8 +112,6 @@ typedef struct {
 
 #if defined(ANDROID) || defined(__linux__)
 #define stricmp strcasecmp
-#elif defined(_WIN32_WCE)
-#define stricmp _stricmp
 #endif
 
 enum DrawAnchor {

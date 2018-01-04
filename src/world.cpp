@@ -146,30 +146,7 @@ namespace F3D {
         EGLint maj_ver;
         EGLint min_ver;
         EGLConfig config;
-#ifdef _WIN32_WCE
-		EGLint config_attribs[] = {
-			EGL_RED_SIZE,		5,
-			EGL_GREEN_SIZE, 	6,
-			EGL_BLUE_SIZE,		5,
-			EGL_DEPTH_SIZE,     16,
-			EGL_BUFFER_SIZE,	16,
-			EGL_ALPHA_SIZE,     EGL_DONT_CARE,
-			EGL_STENCIL_SIZE,   EGL_DONT_CARE,
-			EGL_SURFACE_TYPE,   EGL_WINDOW_BIT,
-            EGL_NONE
-        };
-#elif defined(WIN32)
-		EGLint config_attribs[] = {
-			EGL_RED_SIZE,		8,
-			EGL_GREEN_SIZE, 	8,
-			EGL_BLUE_SIZE,		8,
-			EGL_DEPTH_SIZE, 	16,
-			EGL_ALPHA_SIZE, 	EGL_DONT_CARE,
-			EGL_STENCIL_SIZE,	EGL_DONT_CARE,
-			EGL_SURFACE_TYPE,	EGL_WINDOW_BIT,
-            EGL_NONE
-        };
-#else
+
 		EGLint config_attribs[] = {
             EGL_RED_SIZE,       5,
             EGL_GREEN_SIZE,     6,
@@ -178,39 +155,17 @@ namespace F3D {
 			EGL_STENCIL_SIZE,   0,
             EGL_NONE
         };
-#endif
 
-#ifdef USE_WRAPPER_GL
-        int result = Utils::initGlWrapper();
-        if (!result) {
-#ifdef DEBUG
-            MessageBox(0, TEXT("Import EGL & GL functions error!\nAnd ensure you have a GPU!"), TEXT("Error"), MB_OK);
-#endif
-            return false;
-        }
-#endif // !USE_WRAPPER_GL
 
         //start init EGL
-#if (defined(WIN32) || defined(_WIN32_WCE)) && defined(IS_DC_EGL)
-        HDC hdc = GetDC( m_hwnd );
-        m_display = eglGetDisplay( (NativeDisplayType)hdc );
-#else
         m_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-#endif
-#ifndef USE_VINCENT
+
         if (!checkEglError("eglGetDisplay"))
             return false;
-#endif
 
         eglInitialize(m_display, &maj_ver, &min_ver);
 #ifdef DEBUG
         printf("maj_ver: %d, min_ver: %d\n", maj_ver, min_ver);
-	#if (defined(WIN32) || defined(_WIN32_WCE))
-		TCHAR infoStr[1024];
-
-		wsprintf(infoStr, TEXT("maj_ver: %d, min_ver: %d"), maj_ver, min_ver);
-		MessageBox(m_hwnd, infoStr, TEXT("EGL Info"), MB_OK);
-	#endif
 #endif
         if (!checkEglError("eglInitialize"))
             return false;
@@ -218,10 +173,6 @@ namespace F3D {
         eglGetConfigs(m_display, NULL, 0, &config_nums);
 #ifdef DEBUG
         printf("config_nums: %d\n", config_nums);
-	#if (defined(WIN32) || defined(_WIN32_WCE))
-		wsprintf(infoStr, TEXT("config_nums: %d"), config_nums);
-		MessageBox(m_hwnd, infoStr, TEXT("EGL Info"), MB_OK);
-	#endif
 #endif
         if (!checkEglError("eglGetConfigs"))
             return false;
@@ -229,9 +180,7 @@ namespace F3D {
         eglChooseConfig(m_display, config_attribs, &config, 1, &config_nums);
         if (!checkEglError("eglChooseConfig"))
             return false;
-#if (defined(WIN32) || defined(_WIN32_WCE))
-        m_surface = eglCreateWindowSurface(m_display, config, m_hwnd, NULL);
-#elif defined(__linux__)
+#if defined(__linux__)
         m_surface = eglCreateWindowSurface(m_display, config, m_hwnd, NULL);
 #else
         m_surface = eglCreateWindowSurface(m_display, config,
@@ -256,26 +205,10 @@ namespace F3D {
         printf("EGL_VENDOR\t: %s\n", eglQueryString(m_display, EGL_VENDOR));
         printf("EGL_VERSION\t: %s\n", eglQueryString(m_display, EGL_VERSION));
         printf("EGL_EXTENSIONS\t: %s\n", eglQueryString(m_display, EGL_EXTENSIONS));
-#ifndef USE_VINCENT
         printf("EGL_CLIENT_APIS\t: %s\n", eglQueryString(m_display, EGL_CLIENT_APIS));
-#endif
 
         printf("m_width\t\t: %d\n", m_width);
         printf("m_height\t: %d\n", m_height);
-
-	#if (defined(WIN32) || defined(_WIN32_WCE))
-		wsprintf(infoStr, TEXT("m_width: %d, m_height: %d"), m_width, m_height);
-		MessageBox(m_hwnd, infoStr, TEXT("EGL Info"), MB_OK);
-
-        CHAR infoChr[1024];
-        sprintf(infoChr, "EGL_VENDOR: %s\nEGL_VERSION: %s\nEGL_EXTENSIONS: %s",
-            eglQueryString(m_display, EGL_VENDOR),
-            eglQueryString(m_display, EGL_VERSION),
-            eglQueryString(m_display, EGL_EXTENSIONS));
-
-        Utils::asciiToWchar(infoStr, infoChr);
-        MessageBox(m_hwnd, infoStr, TEXT("EGL  Info"), MB_OK);
-	#endif
 #endif
 
         checkEglError("eglAll");
@@ -284,6 +217,7 @@ namespace F3D {
     }
 
     bool World::initGL() {
+#if 0
         // Initialize viewport and projection.
         glViewport( 0, 0, m_width, m_height );
 
@@ -304,24 +238,13 @@ namespace F3D {
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); //GL_FASTEST GL_NICEST
 
 #ifdef DEBUG
-	#if (defined(WIN32) || defined(_WIN32_WCE))
-        TCHAR infoStr[1024];
-        CHAR infoChr[1024];
-        sprintf(infoChr, "GL_VENDOR: %s\nGL_RENDERER: %s\nGL_VERSION: %s\nGL_EXTENSIONS: %s",
-            glGetString(GL_VENDOR),
-            glGetString(GL_RENDERER),
-            glGetString(GL_VERSION),
-            glGetString(GL_EXTENSIONS));
-
-        Utils::asciiToWchar(infoStr, infoChr);
-        MessageBox(m_hwnd, infoStr, TEXT("GL Info"), MB_OK);
-	#endif
-
         printf("********GL info********\n");
         printf("GL_VENDOR\t: %s\n", glGetString(GL_VENDOR));
         printf("GL_RENDERER\t: %s\n", glGetString(GL_RENDERER));
         printf("GL_VERSION\t: %s\n", glGetString(GL_VERSION));
         printf("GL_EXTENSIONS\t: %s\n", glGetString(GL_EXTENSIONS));
+#endif
+
 #endif
         return true;
     }
@@ -333,37 +256,20 @@ namespace F3D {
         eglDestroySurface(m_display, m_surface);
         eglTerminate(m_display);
 #endif
-
-#ifdef USE_WRAPPER_GL
-		Utils:: deinitGlWrapper();
-#endif //USE_WRAPPER_GL
     }
 
 #ifdef ANDROID
     bool World::init() {
 #else
-#if (defined(WIN32) || defined(_WIN32_WCE))
-    bool World::init(HWND hwnd) {
-		m_hwnd = hwnd;
-#else
     bool World::init(EGLNativeWindowType hwnd) {
         m_hwnd = hwnd;
-#endif // WINXX
 #endif // ANDROID
         if (!initEGL()) {
 #ifdef DEBUG
             printf("initEGL() error!\n");
-
-        #if (defined(WIN32) || defined(_WIN32_WCE))
-            MessageBox(hwnd, TEXT("Init EGL error!"), TEXT("Error"), MB_OK);
-        #endif
 #endif // !DEBUG
             return false;
         }
-
-#if defined(DEBUG) && (defined(WIN32) || defined(_WIN32_WCE))
-		MessageBox(hwnd, TEXT("Init EGL ok, start init GL!"), TEXT("Info"), MB_OK);
-#endif
 
         initGL();
 
@@ -396,6 +302,7 @@ namespace F3D {
     }
 
     void World::gluPerspective() {
+#if 0
         // Start in projection mode.
         GLfloat xmin, xmax, ymin, ymax;
         GLfloat aspect = (GLfloat)m_width / (GLfloat)m_height;
@@ -412,6 +319,7 @@ namespace F3D {
         printf("glFrustumf()\t: %.3f, %.3f, %.3f, %.3f, %.3f, %.3f\n", xmin, xmax, ymin, ymax, m_znear, m_zfar);
 #endif
         glFrustumf(xmin, xmax, ymin, ymax, m_znear, m_zfar);
+#endif
     }
 
     bool World::checkEglError(const char *name) {
@@ -421,12 +329,6 @@ namespace F3D {
         if (err != EGL_SUCCESS) {
 #ifdef DEBUG
             printf("%s() error: 0x%4x!\n", name, err);
-	#if (defined(WIN32) || defined(_WIN32_WCE))
-			TCHAR errorStr[512];
-
-			wsprintf(errorStr, TEXT("%s() error: 0x%4x!"), name, err);
-			MessageBox(m_hwnd, errorStr, TEXT("GL Info"), MB_OK);
-	#endif /* defined(WIN32) || defined(_WIN32_WCE) */
 #endif /* DEBUG */
             return false;
         } else {
@@ -443,7 +345,7 @@ namespace F3D {
 		glClearDepthf(1.0f);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+#if 0
         glLoadIdentity();
 
         m_cameras[m_cameraIndex].gluLookAt();
@@ -464,6 +366,7 @@ namespace F3D {
             glDisable(GL_NORMALIZE);
             glDisable(GL_COLOR_MATERIAL);
         }
+#endif
     }
 
     void World::finishRender() {

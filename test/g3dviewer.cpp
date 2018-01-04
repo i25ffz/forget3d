@@ -33,8 +33,6 @@
  *****************************************************************************/
 #ifdef ANDROID
 #include <sys/time.h>
-#elif defined(_WIN32_WCE)
-#include <aygshell.h>
 #endif
 
 #include "f3d.h"

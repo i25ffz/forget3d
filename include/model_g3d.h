@@ -44,12 +44,6 @@ namespace F3D {
 
 #if defined(ANDROID) || defined(__linux__)
 #define F3D_PACKED __attribute__((packed))
-#elif (defined(WIN32) || defined(_WIN32_WCE))
-#ifndef F3D_PACKED
-#pragma pack( push, packing )
-#pragma pack( 1 )
-#define F3D_PACKED
-#endif
 #endif
 
     /**
@@ -84,9 +78,6 @@ namespace F3D {
         GLuint        *indices;
     } F3D_PACKED g3d_mesh_t;
 
-#if (defined(WIN32) || defined(_WIN32_WCE))
-#pragma pack( pop, packing )
-#endif
 #undef F3D_PACKED
 
     /**

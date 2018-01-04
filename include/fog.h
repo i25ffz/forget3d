@@ -44,7 +44,6 @@ namespace F3D {
 
     class Fog {
     private:
-        GLfloat m_fogMode;
         GLfloat m_fogDensity;
         GLfloat m_fogStart;
         GLfloat m_fogEnd;
@@ -55,14 +54,12 @@ namespace F3D {
         * Constructor
         */
         Fog();
-        Fog(GLfloat fogMode);
 
         /**
          * Destructor
          */
         virtual ~Fog();
 
-        void setFogMode(GLfloat fogMode);
         void setFogDensity(GLfloat fogDensity);
         void setFogStart(GLfloat fogStart);
         void setFogEnd(GLfloat fogEnd);

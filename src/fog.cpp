@@ -40,7 +40,6 @@ namespace F3D {
      */
 
     Fog::Fog() :
-            m_fogMode(GL_EXP),
             m_fogDensity(1.0f),
             m_fogStart(1.0f),
             m_fogEnd(1.0f),
@@ -50,22 +49,10 @@ namespace F3D {
 #endif
     }
 
-    Fog::Fog(GLfloat fogMode) :
-            m_fogDensity(1.0f),
-            m_fogStart(1.0f),
-            m_fogEnd(1.0f),
-            m_fogColor(NULL) {
-        setFogMode(fogMode);
-    }
-
     Fog::~Fog() {
 #ifdef DEBUG
         printf("Fog destructor...\n");
 #endif
-    }
-
-    void Fog::setFogMode(GLfloat fogMode) {
-        m_fogMode = fogMode;
     }
 
     void Fog::setFogDensity(GLfloat fogDensity) {
@@ -85,6 +72,7 @@ namespace F3D {
     }
 
     void Fog::initFog() {
+#if 0
         glFogf(GL_FOG_MODE, m_fogMode);
         if (m_fogColor != NULL)
             glFogfv(GL_FOG_COLOR, m_fogColor);
@@ -93,6 +81,7 @@ namespace F3D {
         glFogf(GL_FOG_END, m_fogEnd);
 
         glHint(GL_FOG_HINT, GL_FASTEST);
+#endif
     }
 
 }

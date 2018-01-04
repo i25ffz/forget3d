@@ -131,8 +131,8 @@ namespace F3D {
         m[1][2] = -forward[1];
         m[2][2] = -forward[2];
 
-        glMultMatrixf(&m[0][0]);
-        glTranslatef(-m_eyex, -m_eyey, -m_eyez);
+        // glMultMatrixf(&m[0][0]);
+        //glTranslatef(-m_eyex, -m_eyey, -m_eyez);
     }
 
 }
