@@ -244,6 +244,44 @@ namespace F3D {
         m_matrix[10] = ( float )( 1.0 - 2.0*quat[0]*quat[0] - 2.0*quat[1]*quat[1] );
     }
 
+    void Matrix::frustum(float left, float right, float bottom, float top, float nearZ, float farZ) {
+        float       deltaX = right - left;
+        float       deltaY = top - bottom;
+        float       deltaZ = farZ - nearZ;
+        ESMatrix    frust;
+
+        if ( (nearZ <= 0.0f) || (farZ <= 0.0f) ||
+             (deltaX <= 0.0f) || (deltaY <= 0.0f) || (deltaZ <= 0.0f) )
+             return;
+
+        frust.m[0][0] = 2.0f * nearZ / deltaX;
+        frust.m[0][1] = frust.m[0][2] = frust.m[0][3] = 0.0f;
+
+        frust.m[1][1] = 2.0f * nearZ / deltaY;
+        frust.m[1][0] = frust.m[1][2] = frust.m[1][3] = 0.0f;
+
+        frust.m[2][0] = (right + left) / deltaX;
+        frust.m[2][1] = (top + bottom) / deltaY;
+        frust.m[2][2] = -(nearZ + farZ) / deltaZ;
+        frust.m[2][3] = -1.0f;
+
+        frust.m[3][2] = -2.0f * nearZ * farZ / deltaZ;
+        frust.m[3][0] = frust.m[3][1] = frust.m[3][3] = 0.0f;
+
+        postMultiply(frust.m);
+    }
+
+
+    void Matrix::perspective(float fovy, float aspect, float nearZ, float farZ)
+    {
+       GLfloat frustumW, frustumH;
+
+       frustumH = tanf( fovy / 360.0f * PI ) * nearZ;
+       frustumW = frustumH * aspect;
+
+       frustum( -frustumW, frustumW, -frustumH, frustumH, nearZ, farZ );
+    }
+
     /**
      * Vector class for all games using F3D, from rsn:
      *  Author:  Brett Porter

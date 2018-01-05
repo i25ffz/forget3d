@@ -39,6 +39,11 @@
 
 namespace F3D {
 
+    typedef struct
+    {
+        GLfloat   m[4][4];
+    } ESMatrix;
+
     /**
      * Quaternion class for all games using F3D, from rsn:
      *  Author:  Brett Porter
@@ -144,6 +149,10 @@ namespace F3D {
 
         /*	Make an inverted rotation matrix from Euler angles. The 4th row and column are unmodified. */
         void setInverseRotationDegrees( const float *angles );
+
+        void frustum(float left, float right, float bottom, float top, float nearZ, float farZ);
+
+        void perspective(float fovy, float aspect, float nearZ, float farZ);
 
         /*	Get the matrix data. */
         const float *getMatrix() const {

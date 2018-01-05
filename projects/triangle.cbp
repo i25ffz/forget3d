@@ -110,6 +110,7 @@
 			</Target>
 			<Target title="dbg-linux">
 				<Option output="triangle_d" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../data" />
 				<Option object_output="../objs/debug" />
 				<Option type="1" />
 				<Option compiler="gcc" />

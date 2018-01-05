@@ -83,13 +83,6 @@ static int  width = 480;
 static int  height = 640;
 static int  is_initialized = false;
 static Display *x_display = NULL;
-#elif defined(WIN32) || defined(_WIN32_WCE)
-static DWORD i_time = 0;
-static int	width = 480;
-static int	height = 640;
-static int  is_initialized = false;
-static HWND	hwnd;
-static int  camera_idx = 1;
 #endif
 
 #if defined(__linux__)
@@ -164,23 +157,15 @@ int main(int argc, char *argv[]) {
 #ifdef ANDROID
     world->init();
 #else
-#if (defined(WIN32) || defined(_WIN32_WCE))
-    world->setSize(width, height);
-    if (!world->init(hwnd)) {
-        MessageBox(hwnd, TEXT("Init world error!"), TEXT("Error"), MB_OK);
-
-        return 0;
-    }
-#else
     if (!world->init(hwnd)) {
         printf("Init world error!\n");
 
         return 0;
     }
-#endif
+
     //after create world, set is_initialized to true
     is_initialized = true;
-#endif
+#endif // ANDROID
 
     world->setCameraCount(2);
 
@@ -239,24 +224,11 @@ int main(int argc, char *argv[]) {
 #if defined(ANDROID) || defined(__linux___)
     gettimeofday(&timeNow, NULL);
     i_time = CLOCK(timeNow);
-#elif (defined(WIN32) || defined(_WIN32_WCE))
-    i_time = GetTickCount();
 #endif
     sprintf(strFps, "Fps:%.2f", 0.0f);
     printf("strFps: %s\n", strFps);
 
     while (is_done) {
-#if (defined(WIN32) || defined(_WIN32_WCE))
-        while (PeekMessage(&msg, hwnd, 0, 0, PM_NOREMOVE)) {
-            if (GetMessage(&msg, hwnd, 0, 0)) {
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
-            } else {
-                is_done = 0;
-                break;
-            }
-        }
-#endif
         world->prepareRender();
 
         model->setRotate(0.0f, rotation, 0.0f);
@@ -294,16 +266,6 @@ int main(int argc, char *argv[]) {
         }
         if (((CLOCK(timeNow) - i_time) / 1000) % 2 == 0 && interval > 0)
             sprintf(strFps, "Fps:%.2f", fps * 1000.0f / interval);
-#elif (defined(WIN32) || defined(_WIN32_WCE))
-        interval = GetTickCount() - i_time;
-
-        if (interval >= 500) {
-            sprintf(strFps, "Fps:%.2f", fps * 1000.0f / interval);
-            //reset all time variables after get strFps
-            interval = 0;
-            i_time = GetTickCount();
-            fps = 0;
-        }
 #endif
     }
 

@@ -33,6 +33,7 @@
  *****************************************************************************/
 
 #include "world.h"
+#include "mathlib.h"
 
 namespace F3D {
     /**
@@ -217,13 +218,12 @@ namespace F3D {
     }
 
     bool World::initGL() {
-#if 0
         // Initialize viewport and projection.
         glViewport( 0, 0, m_width, m_height );
 
         //set the matrix mode
         gluPerspective();
-
+#if 0
         //reset the matrix mode
         glMatrixMode(GL_MODELVIEW); //GL_PROJECTION,GL_MODELVIEW
         glLoadIdentity();
@@ -302,13 +302,20 @@ namespace F3D {
     }
 
     void World::gluPerspective() {
-#if 0
+    /*
+       // Compute the window aspect ratio
+       aspect = (GLfloat) esContext->width / (GLfloat) esContext->height;
+
+       // Generate a perspective matrix with a 60 degree FOV
+       esMatrixLoadIdentity( &perspective );
+       esPerspective( &perspective, 60.0f, aspect, 1.0f, 20.0f );
+       */
+
+
         // Start in projection mode.
         GLfloat xmin, xmax, ymin, ymax;
         GLfloat aspect = (GLfloat)m_width / (GLfloat)m_height;
-
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
+        Matrix perspective;
 
         ymax = (float) (m_znear * tan(m_fovy * M_PI / 360.0));
         ymin = -ymax;
@@ -318,8 +325,7 @@ namespace F3D {
 #ifdef DEBUG
         printf("glFrustumf()\t: %.3f, %.3f, %.3f, %.3f, %.3f, %.3f\n", xmin, xmax, ymin, ymax, m_znear, m_zfar);
 #endif
-        glFrustumf(xmin, xmax, ymin, ymax, m_znear, m_zfar);
-#endif
+        //glFrustumf(xmin, xmax, ymin, ymax, m_znear, m_zfar);
     }
 
     bool World::checkEglError(const char *name) {
