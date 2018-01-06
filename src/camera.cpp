@@ -37,6 +37,7 @@
 namespace F3D {
     /**
      * Camera class for all games using F3D.
+     * Ref: http://blog.db-in.com/cameras-on-opengl-es-2-x/
      */
 
     Camera::Camera() :

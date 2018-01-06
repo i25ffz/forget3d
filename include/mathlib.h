@@ -39,11 +39,6 @@
 
 namespace F3D {
 
-    typedef struct
-    {
-        GLfloat   m[4][4];
-    } ESMatrix;
-
     /**
      * Quaternion class for all games using F3D, from rsn:
      *  Author:  Brett Porter

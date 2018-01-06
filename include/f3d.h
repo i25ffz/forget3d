@@ -90,7 +90,8 @@ typedef struct {
 #define FIXED(value) \
         value < -32768.0f ? -32768 : value > 32767.0f ? 32767 : (int)(value * ONE)
 
-#if defined(ANDROID) || defined(__linux__)
+// android also define __linux__ macro
+#ifdef __linux__
 //get the ms unit time in Linux & Android
 #define CLOCK(v_time) v_time.tv_sec * 1000 + v_time.tv_usec / 1000
 #endif
@@ -110,7 +111,8 @@ typedef struct {
         pointer = NULL; \
     }
 
-#if defined(ANDROID) || defined(__linux__)
+// android also define __linux__ macro
+#ifdef __linux__
 #define stricmp strcasecmp
 #endif
 

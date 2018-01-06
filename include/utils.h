@@ -38,6 +38,7 @@
 #include "f3d.h"
 
 namespace F3D {
+
     /**
      * Utils class for all games using F3D.
      */

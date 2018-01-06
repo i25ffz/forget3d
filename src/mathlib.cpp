@@ -245,6 +245,7 @@ namespace F3D {
     }
 
     void Matrix::frustum(float left, float right, float bottom, float top, float nearZ, float farZ) {
+    /*
         float       deltaX = right - left;
         float       deltaY = top - bottom;
         float       deltaZ = farZ - nearZ;
@@ -269,17 +270,20 @@ namespace F3D {
         frust.m[3][0] = frust.m[3][1] = frust.m[3][3] = 0.0f;
 
         postMultiply(frust.m);
+        */
     }
 
 
     void Matrix::perspective(float fovy, float aspect, float nearZ, float farZ)
     {
+    /*
        GLfloat frustumW, frustumH;
 
        frustumH = tanf( fovy / 360.0f * PI ) * nearZ;
        frustumW = frustumH * aspect;
 
        frustum( -frustumW, frustumW, -frustumH, frustumH, nearZ, farZ );
+       */
     }
 
     /**

@@ -36,5 +36,6 @@ target_include_directories(f3d_jni PRIVATE
 # add lib dependencies
 target_link_libraries(f3d_jni
                       f3d
-                      GLESv1_CM
+                      EGL
+                      GLESv2
                       log)

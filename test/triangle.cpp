@@ -31,14 +31,15 @@
  * ANY THEORY OF LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE
  * POSSESSION, USE OR PERFORMANCE OF THIS SOFTWARE.
  *****************************************************************************/
-#ifdef ANDROID
+// android also define __linux__ macro
+#ifdef __linux__
 #include <sys/time.h>
-#elif defined(__linux__)
-#include <sys/time.h>
+#ifndef ANDROID
 #include  <X11/Xlib.h>
 #include  <X11/Xatom.h>
 #include <X11/Xutil.h>
-#endif
+#endif // ANDROID
+#endif // __linux__
 
 #include "f3d.h"
 #include "world.h"
@@ -73,19 +74,20 @@ static int  is_done = 0;
 static int  interval = 0;
 static GLfloat alpha = 0.0f;
 
-#ifdef ANDROID
-static int  i_time = 0;
-static struct timeval timeNow;
-#elif defined(__linux__)
+// android also define __linux__ macro
+#ifdef __linux__
 static int  i_time = 0;
 static struct timeval timeNow;
 static int  width = 480;
 static int  height = 640;
 static int  is_initialized = false;
+#ifndef ANDROID
 static Display *x_display = NULL;
+#endif // ANDROID
 #endif
 
-#if defined(__linux__)
+// only for linux
+#if (!defined(ANDROID) && defined(__linux__))
 int main(int argc, char *argv[]) {
     Window root;
     XSetWindowAttributes swa;
@@ -221,7 +223,7 @@ int main(int argc, char *argv[]) {
 
     printf("start loop...\n");
     is_done = 1;
-#if defined(ANDROID) || defined(__linux___)
+#ifdef __linux___
     gettimeofday(&timeNow, NULL);
     i_time = CLOCK(timeNow);
 #endif
@@ -257,7 +259,7 @@ int main(int argc, char *argv[]) {
             color.alpha = alpha;
             image->setImageColor(&color);
         }
-#if defined(ANDROID) || defined(__linux___)
+#ifdef __linux___
         gettimeofday(&timeNow, NULL);
         interval = CLOCK(timeNow) - i_time;
         if (interval >= 20000) {

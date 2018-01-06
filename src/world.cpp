@@ -34,6 +34,7 @@
 
 #include "world.h"
 #include "mathlib.h"
+#include "esUtil.h"
 
 namespace F3D {
     /**
@@ -181,7 +182,7 @@ namespace F3D {
         eglChooseConfig(m_display, config_attribs, &config, 1, &config_nums);
         if (!checkEglError("eglChooseConfig"))
             return false;
-#if defined(__linux__)
+#if (!defined(ANDROID) && defined(__linux__))
         m_surface = eglCreateWindowSurface(m_display, config, m_hwnd, NULL);
 #else
         m_surface = eglCreateWindowSurface(m_display, config,
@@ -311,11 +312,12 @@ namespace F3D {
        esPerspective( &perspective, 60.0f, aspect, 1.0f, 20.0f );
        */
 
-
+        ESMatrix perspective;
         // Start in projection mode.
         GLfloat xmin, xmax, ymin, ymax;
         GLfloat aspect = (GLfloat)m_width / (GLfloat)m_height;
-        Matrix perspective;
+        esMatrixLoadIdentity(&perspective);
+        //esPerspective(&perspective, )
 
         ymax = (float) (m_znear * tan(m_fovy * M_PI / 360.0));
         ymin = -ymax;

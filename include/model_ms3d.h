@@ -54,7 +54,8 @@
 namespace F3D {
 
 // force one byte alignment
-#if defined(ANDROID) || defined(__linux__)
+// android also define __linux__ macro
+#ifdef __linux__
 #define F3D_PACKED __attribute__((packed))
 #endif
 
